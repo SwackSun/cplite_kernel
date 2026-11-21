@@ -1,0 +1,13 @@
+# SPDX-License-Identifier: GPL-2.0-only
+config CM0_EARLY_DISPLAY
+	bool "Cardputer Zero built-in critical display chain"
+	depends on OF && I2C && SPI && DRM && PWM && GPIOLIB && PINCTRL && IIO
+	select DRM_CM0_VENDOR_HELPERS
+	select REGMAP_I2C
+	select PINMUX
+	select PINCONF
+	select GENERIC_PINCONF
+	help
+	  Build the pinned M5 IO expander, GPIO forwarder, PWM backlight and
+	  SPI panel into Linux. The SDK supplies their source and embeds the
+	  panel command firmware. Keep the other M5 peripherals modular.
