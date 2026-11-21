@@ -1,0 +1,7 @@
+/build/
+__pycache__/
+.env
+.env.*
+.ssh/
+signing_key.pem
+signing_key.priv
