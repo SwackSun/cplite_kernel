@@ -1,0 +1,1 @@
+obj-m += powerfail_suo.o cardputerzero-audio.o

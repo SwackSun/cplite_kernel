@@ -1,0 +1,1 @@
+../../../linux/Documentation/process/license-rules.rst
