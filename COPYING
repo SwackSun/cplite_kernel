@@ -1,0 +1,26 @@
+CZLite v0.3.7 kernel source distribution
+
+The Linux kernel as a whole, including the integrated CZLite kernel changes,
+is distributed under version 2 of the GNU General Public License. See
+linux/COPYING and the complete text in linux/LICENSES/preferred/GPL-2.0.
+The Linux-syscall-note exception applies to the user-space API as described
+in linux/LICENSES/exceptions/Linux-syscall-note.
+
+Individual upstream files retain their license notices and alternatives.
+For example, the BMI270 driver offers GPL-2.0-only OR BSD-2-Clause.
+The M5Stack board sources retain bsp/COPYING and their per-file notices.
+The license texts referenced by the BSP are provided in linux/LICENSES/.
+
+The standalone CZLite build.sh, panel/generate.py, top-level .gitignore and
+README.md are available under the MIT License in LICENSE-MIT. The same
+license applies to the CZLite source export script in the originating SDK.
+The kernel configuration records build settings from the released kernel.
+
+Panel data provenance
+The DCS command data in panel/cardputerzero.splash reproduces the settings
+in M5Stack's modules/st7789v-1.0/cardputerzero,st7789v_lcd.bin at revision
+4f7aeee9fc103ebb03d22cac476bb191ecfb321e. The 93-byte file in
+linux/cm0-firmware/ matches that upstream file byte for byte. This release
+carries the M5Stack repository-level terms in bsp/COPYING for the panel
+initialization data in both representations. The upstream notice specifies
+GPL-2.0 WITH Linux-syscall-note. The standalone generator uses LICENSE-MIT.
