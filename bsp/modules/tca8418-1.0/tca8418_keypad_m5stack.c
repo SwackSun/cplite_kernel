@@ -418,6 +418,62 @@ static void tca8418_fsm_cleanup_device(struct tca8418_keypad *keypad_data,
 	device->state = ST_IDLE;
 }
 
+/* Serialize userspace requests with the FIFO and modifier timers. */
+struct tca8418_fn_request {
+	struct work_struct work;
+	struct tca8418_keypad *keypad;
+	bool lock;
+};
+
+static void tca8418_set_fn_lock(struct work_struct *work)
+{
+	struct tca8418_fn_request *request =
+		container_of(work, struct tca8418_fn_request, work);
+	struct tca8418_keypad *keypad = request->keypad;
+	tca8418_t *fn = &keypad->fn_key.fsm;
+
+	if (request->lock) {
+		/* Sym and Fn select mutually exclusive keymaps. */
+		if (keypad->sym_key.fsm.layer_active)
+			tca8418_fsm_cleanup_device(keypad, &keypad->sym_key.fsm);
+		tca8418_fsm_cancel_timer(keypad, fn);
+		if (!fn->layer_active) {
+			enable_layer(fn);
+			emit_key_pres_status(fn);
+		}
+		/* Both taps have been released. One more tap unlocks Fn. */
+		fn->state = ST_LOCKED_WAIT_LEAVE;
+		led_FAST(fn);
+	} else {
+		tca8418_fsm_cleanup_device(keypad, fn);
+	}
+	input_sync(keypad->input);
+}
+
+static ssize_t fn_lock_store(struct device *dev, struct device_attribute *attr,
+			     const char *buf, size_t count)
+{
+	struct tca8418_fn_request request = { .keypad = dev_get_drvdata(dev) };
+	int error;
+
+	error = kstrtobool(buf, &request.lock);
+	if (error)
+		return error;
+
+	INIT_WORK_ONSTACK(&request.work, tca8418_set_fn_lock);
+	queue_work(request.keypad->wq, &request.work);
+	flush_work(&request.work);
+	destroy_work_on_stack(&request.work);
+	return count;
+}
+static DEVICE_ATTR_WO(fn_lock);
+
+static struct attribute *tca8418_attrs[] = {
+	&dev_attr_fn_lock.attr,
+	NULL,
+};
+ATTRIBUTE_GROUPS(tca8418);
+
 static void tca8418_fsm_cleanup(struct tca8418_keypad *keypad_data)
 {
 	unsigned int scan_code;
@@ -882,6 +938,7 @@ static int tca8418_keypad_probe(struct i2c_client *client)
 		__set_bit(EV_REP, input->evbit);
 
 	input_set_drvdata(input, keypad_data);
+	i2c_set_clientdata(client, keypad_data);
 
 	input_set_capability(input, EV_MSC, MSC_SCAN);
 	// __set_bit(EV_MSC, input->evbit);
@@ -929,6 +986,7 @@ static struct i2c_driver tca8418_keypad_driver = {
 	.driver = {
 		.name	= "tca8418_keypad",
 		.of_match_table = tca8418_dt_ids,
+		.dev_groups = tca8418_groups,
 	},
 	.probe		= tca8418_keypad_probe,
 	.id_table	= tca8418_id,
@@ -938,3 +996,5 @@ module_i2c_driver(tca8418_keypad_driver);
 MODULE_AUTHOR("Kyle Manna <kyle.manna@fuel7.com>");
 MODULE_DESCRIPTION("Keypad driver for TCA8418");
 MODULE_LICENSE("GPL");
+
+// Modified by CZLite on 2026-11-22.

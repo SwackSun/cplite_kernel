@@ -1,4 +1,4 @@
-CZLite v0.3.7 kernel source distribution
+CZLite v0.3.8 kernel source distribution
 
 The Linux kernel as a whole, including the integrated CZLite kernel changes,
 is distributed under version 2 of the GNU General Public License. See
@@ -24,3 +24,10 @@ linux/cm0-firmware/ matches that upstream file byte for byte. This release
 carries the M5Stack repository-level terms in bsp/COPYING for the panel
 initialization data in both representations. The upstream notice specifies
 GPL-2.0 WITH Linux-syscall-note. The standalone generator uses LICENSE-MIT.
+
+Firmware image and userspace
+The image contains software and peripheral firmware under multiple licenses.
+Package versions and license notices are included in the source supplement
+distributed with the release and in /usr/share/licenses/czlite/ on the device.
+They include the Wi-Fi firmware notices, the Raspberry Pi boot firmware terms
+and the Bosch BSD-3-Clause notice for the BMI270 configuration data.
